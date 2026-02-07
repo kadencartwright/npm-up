@@ -186,3 +186,42 @@ export class DependencyAuditService {
   }
 }
 ```
+
+## Upgrade Candidate Analysis Service
+
+`UpgradeCandidateService` is provided by `UpgradeCandidateModule` and exposes:
+
+- `findCandidates(packageJsonContent, options?)`
+
+### Candidacy criteria
+
+- default (`{ kind: 'latest' }`): candidate when the wanted range does not satisfy the latest eligible version
+- min age (`{ kind: 'minAge', minAgeDays }`): candidate when the wanted range does not satisfy the latest eligible version that is at least `minAgeDays` old
+
+### Result shape
+
+`findCandidates` returns:
+
+- `candidates`: dependencies that meet the candidacy rule
+- `skipped`: dependencies not evaluated (for example non-semver specifiers)
+- `errors`: per-dependency lookup failures
+
+### Usage example
+
+```ts
+import { Injectable } from '@nestjs/common';
+import { UpgradeCandidateService } from './upgrade-candidate/upgrade-candidate.service';
+
+@Injectable()
+export class UpgradeAuditService {
+  constructor(
+    private readonly upgradeCandidateService: UpgradeCandidateService,
+  ) {}
+
+  async listCandidates(packageJsonContent: string) {
+    return this.upgradeCandidateService.findCandidates(packageJsonContent, {
+      strategy: { kind: 'minAge', minAgeDays: 30 },
+    });
+  }
+}
+```
