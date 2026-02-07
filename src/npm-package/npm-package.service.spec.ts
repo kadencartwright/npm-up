@@ -39,8 +39,8 @@ describe('NpmPackageService', () => {
     const service = await createService();
     const metadata = { name: 'lodash', versions: {}, time: {} };
 
-    configService.get.mockImplementation((key: string, defaultValue: unknown) =>
-      defaultValue,
+    configService.get.mockImplementation(
+      (key: string, defaultValue: unknown) => defaultValue,
     );
     httpService.get.mockReturnValue(of({ data: metadata }));
 
@@ -59,15 +59,17 @@ describe('NpmPackageService', () => {
     const service = await createService();
     const metadata = { name: 'react', versions: {}, time: {} };
 
-    configService.get.mockImplementation((key: string, defaultValue: unknown) => {
-      if (key === 'NPM_REGISTRY_URL') {
-        return 'https://custom.registry.local/';
-      }
-      if (key === 'NPM_TIMEOUT') {
-        return 2500;
-      }
-      return defaultValue;
-    });
+    configService.get.mockImplementation(
+      (key: string, defaultValue: unknown) => {
+        if (key === 'NPM_REGISTRY_URL') {
+          return 'https://custom.registry.local/';
+        }
+        if (key === 'NPM_TIMEOUT') {
+          return 2500;
+        }
+        return defaultValue;
+      },
+    );
     httpService.get.mockReturnValue(of({ data: metadata }));
 
     await service.fetchPackageMetadata('react');
@@ -82,8 +84,8 @@ describe('NpmPackageService', () => {
   it('encodes scoped package names in request URL', async () => {
     const service = await createService();
 
-    configService.get.mockImplementation((key: string, defaultValue: unknown) =>
-      defaultValue,
+    configService.get.mockImplementation(
+      (key: string, defaultValue: unknown) => defaultValue,
     );
     httpService.get.mockReturnValue(of({ data: { name: '@scope/pkg' } }));
 
@@ -99,8 +101,8 @@ describe('NpmPackageService', () => {
   it('throws PackageNotFoundError for npm 404 responses', async () => {
     const service = await createService();
 
-    configService.get.mockImplementation((key: string, defaultValue: unknown) =>
-      defaultValue,
+    configService.get.mockImplementation(
+      (key: string, defaultValue: unknown) => defaultValue,
     );
     httpService.get.mockReturnValue(
       throwError(() => ({
@@ -108,16 +110,16 @@ describe('NpmPackageService', () => {
       })),
     );
 
-    await expect(service.fetchPackageMetadata('missing-pkg')).rejects.toBeInstanceOf(
-      PackageNotFoundError,
-    );
+    await expect(
+      service.fetchPackageMetadata('missing-pkg'),
+    ).rejects.toBeInstanceOf(PackageNotFoundError);
   });
 
   it('throws NetworkError for non-404 request failures', async () => {
     const service = await createService();
 
-    configService.get.mockImplementation((key: string, defaultValue: unknown) =>
-      defaultValue,
+    configService.get.mockImplementation(
+      (key: string, defaultValue: unknown) => defaultValue,
     );
     httpService.get.mockReturnValue(
       throwError(() => new Error('Connection timeout')),
@@ -141,12 +143,14 @@ describe('NpmPackageService', () => {
     };
 
     jest.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
-    configService.get.mockImplementation((key: string, defaultValue: unknown) =>
-      defaultValue,
+    configService.get.mockImplementation(
+      (key: string, defaultValue: unknown) => defaultValue,
     );
     httpService.get.mockReturnValue(of({ data: metadata }));
 
-    await expect(service.getVersionAge('example-pkg', '1.0.0')).resolves.toBe(15);
+    await expect(service.getVersionAge('example-pkg', '1.0.0')).resolves.toBe(
+      15,
+    );
     jest.useRealTimers();
   });
 
@@ -162,14 +166,14 @@ describe('NpmPackageService', () => {
       },
     };
 
-    configService.get.mockImplementation((key: string, defaultValue: unknown) =>
-      defaultValue,
+    configService.get.mockImplementation(
+      (key: string, defaultValue: unknown) => defaultValue,
     );
     httpService.get.mockReturnValue(of({ data: metadata }));
 
-    await expect(service.getVersionAge('example-pkg', '2.0.0')).rejects.toBeInstanceOf(
-      VersionNotFoundError,
-    );
+    await expect(
+      service.getVersionAge('example-pkg', '2.0.0'),
+    ).rejects.toBeInstanceOf(VersionNotFoundError);
   });
 
   it('excludes prerelease versions by default', async () => {
@@ -184,8 +188,8 @@ describe('NpmPackageService', () => {
       },
     };
 
-    configService.get.mockImplementation((key: string, defaultValue: unknown) =>
-      defaultValue,
+    configService.get.mockImplementation(
+      (key: string, defaultValue: unknown) => defaultValue,
     );
     httpService.get.mockReturnValue(of({ data: metadata }));
 
@@ -207,17 +211,19 @@ describe('NpmPackageService', () => {
     };
 
     jest.useFakeTimers().setSystemTime(new Date('2025-01-20T00:00:00.000Z'));
-    configService.get.mockImplementation((key: string, defaultValue: unknown) => {
-      if (key === 'NPM_INCLUDE_PRERELEASE') {
-        return true;
-      }
-      return defaultValue;
-    });
+    configService.get.mockImplementation(
+      (key: string, defaultValue: unknown) => {
+        if (key === 'NPM_INCLUDE_PRERELEASE') {
+          return true;
+        }
+        return defaultValue;
+      },
+    );
     httpService.get.mockReturnValue(of({ data: metadata }));
 
-    await expect(service.getVersionAge('example-pkg', '2.0.0-beta.1')).resolves.toBe(
-      10,
-    );
+    await expect(
+      service.getVersionAge('example-pkg', '2.0.0-beta.1'),
+    ).resolves.toBe(10);
     jest.useRealTimers();
   });
 
@@ -233,14 +239,14 @@ describe('NpmPackageService', () => {
       },
     };
 
-    configService.get.mockImplementation((key: string, defaultValue: unknown) =>
-      defaultValue,
+    configService.get.mockImplementation(
+      (key: string, defaultValue: unknown) => defaultValue,
     );
     httpService.get.mockReturnValue(of({ data: metadata }));
 
-    await expect(service.getVersionAge('example-pkg', '1.5.0')).rejects.toBeInstanceOf(
-      VersionNotFoundError,
-    );
+    await expect(
+      service.getVersionAge('example-pkg', '1.5.0'),
+    ).rejects.toBeInstanceOf(VersionNotFoundError);
   });
 
   it('includes deprecated versions when configured with env string true', async () => {
@@ -256,15 +262,19 @@ describe('NpmPackageService', () => {
     };
 
     jest.useFakeTimers().setSystemTime(new Date('2025-01-20T00:00:00.000Z'));
-    configService.get.mockImplementation((key: string, defaultValue: unknown) => {
-      if (key === 'NPM_INCLUDE_DEPRECATED') {
-        return 'true';
-      }
-      return defaultValue;
-    });
+    configService.get.mockImplementation(
+      (key: string, defaultValue: unknown) => {
+        if (key === 'NPM_INCLUDE_DEPRECATED') {
+          return 'true';
+        }
+        return defaultValue;
+      },
+    );
     httpService.get.mockReturnValue(of({ data: metadata }));
 
-    await expect(service.getVersionAge('example-pkg', '1.5.0')).resolves.toBe(10);
+    await expect(service.getVersionAge('example-pkg', '1.5.0')).resolves.toBe(
+      10,
+    );
     jest.useRealTimers();
   });
 
@@ -287,18 +297,18 @@ describe('NpmPackageService', () => {
     };
 
     jest.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
-    configService.get.mockImplementation((key: string, defaultValue: unknown) =>
-      defaultValue,
+    configService.get.mockImplementation(
+      (key: string, defaultValue: unknown) => defaultValue,
     );
     httpService.get.mockReturnValue(of({ data: metadata }));
 
-    await expect(service.getLatestVersion('example-pkg')).resolves.toEqual<PackageVersion>(
-      {
-        version: '1.2.0',
-        publishedAt: new Date('2025-01-15T00:00:00.000Z'),
-        ageInDays: 10,
-      },
-    );
+    await expect(
+      service.getLatestVersion('example-pkg'),
+    ).resolves.toEqual<PackageVersion>({
+      version: '1.2.0',
+      publishedAt: new Date('2025-01-15T00:00:00.000Z'),
+      ageInDays: 10,
+    });
     jest.useRealTimers();
   });
 
@@ -317,21 +327,26 @@ describe('NpmPackageService', () => {
     };
 
     jest.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
-    configService.get.mockImplementation((key: string, defaultValue: unknown) => {
-      if (key === 'NPM_INCLUDE_PRERELEASE' || key === 'NPM_INCLUDE_DEPRECATED') {
-        return true;
-      }
-      return defaultValue;
-    });
-    httpService.get.mockReturnValue(of({ data: metadata }));
-
-    await expect(service.getLatestVersion('example-pkg')).resolves.toEqual<PackageVersion>(
-      {
-        version: '1.3.0-beta.1',
-        publishedAt: new Date('2025-01-20T00:00:00.000Z'),
-        ageInDays: 5,
+    configService.get.mockImplementation(
+      (key: string, defaultValue: unknown) => {
+        if (
+          key === 'NPM_INCLUDE_PRERELEASE' ||
+          key === 'NPM_INCLUDE_DEPRECATED'
+        ) {
+          return true;
+        }
+        return defaultValue;
       },
     );
+    httpService.get.mockReturnValue(of({ data: metadata }));
+
+    await expect(
+      service.getLatestVersion('example-pkg'),
+    ).resolves.toEqual<PackageVersion>({
+      version: '1.3.0-beta.1',
+      publishedAt: new Date('2025-01-20T00:00:00.000Z'),
+      ageInDays: 5,
+    });
     jest.useRealTimers();
   });
 
@@ -349,14 +364,14 @@ describe('NpmPackageService', () => {
       },
     };
 
-    configService.get.mockImplementation((key: string, defaultValue: unknown) =>
-      defaultValue,
+    configService.get.mockImplementation(
+      (key: string, defaultValue: unknown) => defaultValue,
     );
     httpService.get.mockReturnValue(of({ data: metadata }));
 
-    await expect(service.getLatestVersion('example-pkg')).rejects.toBeInstanceOf(
-      VersionNotFoundError,
-    );
+    await expect(
+      service.getLatestVersion('example-pkg'),
+    ).rejects.toBeInstanceOf(VersionNotFoundError);
   });
 
   it('returns latest version that is at least N days old', async () => {
@@ -376,8 +391,8 @@ describe('NpmPackageService', () => {
     };
 
     jest.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
-    configService.get.mockImplementation((key: string, defaultValue: unknown) =>
-      defaultValue,
+    configService.get.mockImplementation(
+      (key: string, defaultValue: unknown) => defaultValue,
     );
     httpService.get.mockReturnValue(of({ data: metadata }));
 
@@ -404,8 +419,8 @@ describe('NpmPackageService', () => {
     };
 
     jest.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
-    configService.get.mockImplementation((key: string, defaultValue: unknown) =>
-      defaultValue,
+    configService.get.mockImplementation(
+      (key: string, defaultValue: unknown) => defaultValue,
     );
     httpService.get.mockReturnValue(of({ data: metadata }));
 
@@ -430,8 +445,8 @@ describe('NpmPackageService', () => {
     };
 
     jest.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
-    configService.get.mockImplementation((key: string, defaultValue: unknown) =>
-      defaultValue,
+    configService.get.mockImplementation(
+      (key: string, defaultValue: unknown) => defaultValue,
     );
     httpService.get.mockReturnValue(of({ data: metadata }));
 
@@ -460,18 +475,18 @@ describe('NpmPackageService', () => {
     };
 
     jest.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
-    configService.get.mockImplementation((key: string, defaultValue: unknown) =>
-      defaultValue,
+    configService.get.mockImplementation(
+      (key: string, defaultValue: unknown) => defaultValue,
     );
     httpService.get.mockReturnValue(of({ data: metadata }));
 
-    await expect(service.getLatestVersion('example-pkg')).resolves.toEqual<PackageVersion>(
-      {
-        version: '1.2.0',
-        publishedAt: new Date('2025-01-10T00:00:00.000Z'),
-        ageInDays: 15,
-      },
-    );
+    await expect(
+      service.getLatestVersion('example-pkg'),
+    ).resolves.toEqual<PackageVersion>({
+      version: '1.2.0',
+      publishedAt: new Date('2025-01-10T00:00:00.000Z'),
+      ageInDays: 15,
+    });
     jest.useRealTimers();
   });
 
@@ -490,8 +505,8 @@ describe('NpmPackageService', () => {
     };
 
     jest.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
-    configService.get.mockImplementation((key: string, defaultValue: unknown) =>
-      defaultValue,
+    configService.get.mockImplementation(
+      (key: string, defaultValue: unknown) => defaultValue,
     );
     httpService.get.mockReturnValue(of({ data: metadata }));
 

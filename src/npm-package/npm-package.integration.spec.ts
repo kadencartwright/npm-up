@@ -104,8 +104,8 @@ describe('NpmPackageService Integration', () => {
     responseBody = { error: 'not found' };
     const service = await createService();
 
-    await expect(service.fetchPackageMetadata('missing')).rejects.toBeInstanceOf(
-      PackageNotFoundError,
-    );
+    await expect(
+      service.fetchPackageMetadata('missing'),
+    ).rejects.toBeInstanceOf(PackageNotFoundError);
   });
 });

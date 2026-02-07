@@ -26,6 +26,7 @@ export interface NpmPackageMetadata {
 export class NpmPackageService {
   constructor(
     private readonly httpService: HttpService,
+    // TODO: fix this lint error
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
     private readonly configService: ConfigService,
   ) {}
@@ -52,7 +53,10 @@ export class NpmPackageService {
         throw new PackageNotFoundError(packageName);
       }
       const message = error instanceof Error ? error.message : 'Request failed';
-      throw new NetworkError(message, error instanceof Error ? error : undefined);
+      throw new NetworkError(
+        message,
+        error instanceof Error ? error : undefined,
+      );
     }
   }
 
