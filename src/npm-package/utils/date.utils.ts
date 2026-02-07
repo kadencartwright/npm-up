@@ -5,7 +5,8 @@ const MS_PER_DAY = 1000 * 60 * 60 * 24;
 function toDate(value: Date | string): Date {
   const date = typeof value === 'string' ? new Date(value) : value;
   if (isNaN(date.getTime())) {
-    throw new Error(`Invalid date: ${value}`);
+    const displayValue = value instanceof Date ? value.toISOString() : value;
+    throw new Error(`Invalid date: ${displayValue}`);
   }
   return date;
 }

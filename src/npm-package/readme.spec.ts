@@ -12,5 +12,7 @@ describe('README npm package docs', () => {
     expect(readme).toContain('getLatestVersion');
     expect(readme).toContain('getLatestVersionAtLeastNDaysOld');
     expect(readme).toContain('NPM_REGISTRY_URL');
+    expect(readme).toContain('UpgradeCandidateService');
+    expect(readme).toContain('findCandidates');
   });
 });
