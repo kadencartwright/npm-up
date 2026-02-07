@@ -22,8 +22,8 @@ Build a NestJS service that analyzes `package.json` dependency specs and returns
 - [x] (complete) Implement age strategy and option validation.
 - [x] (complete) Add `UpgradeCandidateModule` and export surface via `src/index.ts`.
 - [x] (complete) Document service usage in `README.md`.
-- [ ] (pending) For each logical chunk: run `npm run lint` and `npm test`, then commit and push.
-- [ ] (pending) After all tasks are complete and tests are green, move this plan to `plans/archive/`.
+- [x] (complete) For each logical chunk: run `npm run lint` and `npm test`, then commit and push.
+- [x] (complete) After all tasks are complete and tests are green, move this plan to `plans/archive/`.
 
 ## Chunking Protocol
 
