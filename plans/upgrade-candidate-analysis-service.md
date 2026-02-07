@@ -18,8 +18,8 @@ Build a NestJS service that analyzes `package.json` dependency specs and returns
 - [x] (complete) Add failing tests for `UpgradeCandidateService` default strategy behavior.
 - [x] (complete) Add failing tests for non-semver skips and partial error handling.
 - [x] (complete) Implement upgrade-candidate types and service for default strategy.
-- [ ] (pending) Add failing tests for age strategy and options validation.
-- [ ] (pending) Implement age strategy and option validation.
+- [x] (complete) Add failing tests for age strategy and options validation.
+- [x] (complete) Implement age strategy and option validation.
 - [ ] (pending) Add `UpgradeCandidateModule` and export surface via `src/index.ts`.
 - [ ] (pending) Document service usage in `README.md`.
 - [ ] (pending) For each logical chunk: run `npm run lint` and `npm test`, then commit and push.
