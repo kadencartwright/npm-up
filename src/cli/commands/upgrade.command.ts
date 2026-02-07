@@ -4,7 +4,6 @@ import { PackageJsonLocatorService } from '../package-json-locator.service';
 import { PackageJsonWriterService } from '../package-json-writer.service';
 import { DependencySection } from '../../package-json/types';
 import { UpgradeCandidateService } from '../../upgrade-candidate/upgrade-candidate.service';
-import { UpgradeCandidate } from '../../upgrade-candidate/types';
 
 export interface UpgradeCommandOptions {
   packageJson?: string;

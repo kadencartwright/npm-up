@@ -78,13 +78,10 @@ describe('UpgradeCommand', () => {
 
     await command.run([], {});
 
-    expect(upgradeCandidateService.findCandidates).toHaveBeenCalledWith(
-      packageJson,
-      {
-        sourceLabel: packagePath,
-      },
-    );
-    expect(prompts.selectCandidates).not.toHaveBeenCalled();
+    expect(upgradeCandidateService.findCandidates.mock.calls).toEqual([
+      [packageJson, { sourceLabel: packagePath }],
+    ]);
+    expect(prompts.selectCandidates.mock.calls).toHaveLength(0);
   });
 
   it('uses minAge strategy when minAgeDays is provided', async () => {
@@ -100,13 +97,15 @@ describe('UpgradeCommand', () => {
 
     await command.run([], { minAgeDays: 30 });
 
-    expect(upgradeCandidateService.findCandidates).toHaveBeenCalledWith(
-      packageJson,
-      {
-        sourceLabel: packagePath,
-        strategy: { kind: 'minAge', minAgeDays: 30 },
-      },
-    );
+    expect(upgradeCandidateService.findCandidates.mock.calls).toEqual([
+      [
+        packageJson,
+        {
+          sourceLabel: packagePath,
+          strategy: { kind: 'minAge', minAgeDays: 30 },
+        },
+      ],
+    ]);
   });
 
   it('writes only selected candidates after confirmation', async () => {
@@ -145,8 +144,8 @@ describe('UpgradeCommand', () => {
 
     await command.run([], {} as UpgradeCommandOptions);
 
-    expect(writer.applyUpgradesFromFile).toHaveBeenCalledWith(packagePath, [
-      candidates[0],
+    expect(writer.applyUpgradesFromFile.mock.calls).toEqual([
+      [packagePath, [candidates[0]]],
     ]);
   });
 });
