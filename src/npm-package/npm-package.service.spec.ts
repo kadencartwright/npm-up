@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { HttpService } from '@nestjs/axios';
 import { ConfigService } from '@nestjs/config';
@@ -10,9 +11,9 @@ import { VersionNotFoundError } from './errors/version-not-found.error';
 import { PackageVersion } from './types';
 
 describe('NpmPackageService', () => {
-  const httpService = { get: jest.fn() };
+  const httpService = { get: vi.fn() };
   const cacheManager = {};
-  const configService = { get: jest.fn() };
+  const configService = { get: vi.fn() };
 
   async function createService(): Promise<NpmPackageService> {
     const moduleRef = await Test.createTestingModule({
@@ -28,7 +29,7 @@ describe('NpmPackageService', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('resolves when constructor dependencies are provided', async () => {
@@ -142,7 +143,7 @@ describe('NpmPackageService', () => {
       },
     };
 
-    jest.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
+    vi.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
     configService.get.mockImplementation(
       (key: string, defaultValue: unknown) => defaultValue,
     );
@@ -151,7 +152,7 @@ describe('NpmPackageService', () => {
     await expect(service.getVersionAge('example-pkg', '1.0.0')).resolves.toBe(
       15,
     );
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('throws VersionNotFoundError when the version does not exist', async () => {
@@ -210,7 +211,7 @@ describe('NpmPackageService', () => {
       },
     };
 
-    jest.useFakeTimers().setSystemTime(new Date('2025-01-20T00:00:00.000Z'));
+    vi.useFakeTimers().setSystemTime(new Date('2025-01-20T00:00:00.000Z'));
     configService.get.mockImplementation(
       (key: string, defaultValue: unknown) => {
         if (key === 'NPM_INCLUDE_PRERELEASE') {
@@ -224,7 +225,7 @@ describe('NpmPackageService', () => {
     await expect(
       service.getVersionAge('example-pkg', '2.0.0-beta.1'),
     ).resolves.toBe(10);
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('excludes deprecated versions by default', async () => {
@@ -261,7 +262,7 @@ describe('NpmPackageService', () => {
       },
     };
 
-    jest.useFakeTimers().setSystemTime(new Date('2025-01-20T00:00:00.000Z'));
+    vi.useFakeTimers().setSystemTime(new Date('2025-01-20T00:00:00.000Z'));
     configService.get.mockImplementation(
       (key: string, defaultValue: unknown) => {
         if (key === 'NPM_INCLUDE_DEPRECATED') {
@@ -275,7 +276,7 @@ describe('NpmPackageService', () => {
     await expect(service.getVersionAge('example-pkg', '1.5.0')).resolves.toBe(
       10,
     );
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('returns the most recent stable version by default', async () => {
@@ -296,7 +297,7 @@ describe('NpmPackageService', () => {
       },
     };
 
-    jest.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
+    vi.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
     configService.get.mockImplementation(
       (key: string, defaultValue: unknown) => defaultValue,
     );
@@ -309,7 +310,7 @@ describe('NpmPackageService', () => {
       publishedAt: new Date('2025-01-15T00:00:00.000Z'),
       ageInDays: 10,
     });
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('includes prerelease and deprecated versions when both are enabled', async () => {
@@ -326,7 +327,7 @@ describe('NpmPackageService', () => {
       },
     };
 
-    jest.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
+    vi.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
     configService.get.mockImplementation(
       (key: string, defaultValue: unknown) => {
         if (
@@ -347,7 +348,7 @@ describe('NpmPackageService', () => {
       publishedAt: new Date('2025-01-20T00:00:00.000Z'),
       ageInDays: 5,
     });
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('throws VersionNotFoundError when no versions remain after filtering', async () => {
@@ -390,7 +391,7 @@ describe('NpmPackageService', () => {
       },
     };
 
-    jest.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
+    vi.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
     configService.get.mockImplementation(
       (key: string, defaultValue: unknown) => defaultValue,
     );
@@ -403,7 +404,7 @@ describe('NpmPackageService', () => {
       publishedAt: new Date('2025-01-10T00:00:00.000Z'),
       ageInDays: 15,
     });
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('returns null when no eligible version meets the minimum age', async () => {
@@ -418,7 +419,7 @@ describe('NpmPackageService', () => {
       },
     };
 
-    jest.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
+    vi.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
     configService.get.mockImplementation(
       (key: string, defaultValue: unknown) => defaultValue,
     );
@@ -427,7 +428,7 @@ describe('NpmPackageService', () => {
     await expect(
       service.getLatestVersionAtLeastNDaysOld('example-pkg', 10),
     ).resolves.toBeNull();
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('applies filtering before age selection', async () => {
@@ -444,7 +445,7 @@ describe('NpmPackageService', () => {
       },
     };
 
-    jest.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
+    vi.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
     configService.get.mockImplementation(
       (key: string, defaultValue: unknown) => defaultValue,
     );
@@ -457,7 +458,7 @@ describe('NpmPackageService', () => {
       publishedAt: new Date('2025-01-01T00:00:00.000Z'),
       ageInDays: 24,
     });
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('ignores invalid semver entries when selecting latest version', async () => {
@@ -474,7 +475,7 @@ describe('NpmPackageService', () => {
       },
     };
 
-    jest.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
+    vi.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
     configService.get.mockImplementation(
       (key: string, defaultValue: unknown) => defaultValue,
     );
@@ -487,7 +488,7 @@ describe('NpmPackageService', () => {
       publishedAt: new Date('2025-01-10T00:00:00.000Z'),
       ageInDays: 15,
     });
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('ignores invalid semver entries for N-days-old lookup', async () => {
@@ -504,7 +505,7 @@ describe('NpmPackageService', () => {
       },
     };
 
-    jest.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
+    vi.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
     configService.get.mockImplementation(
       (key: string, defaultValue: unknown) => defaultValue,
     );
@@ -517,6 +518,6 @@ describe('NpmPackageService', () => {
       publishedAt: new Date('2025-01-05T00:00:00.000Z'),
       ageInDays: 20,
     });
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 });

@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { Test } from '@nestjs/testing';
 import { NpmPackageService } from '../npm-package/npm-package.service';
 import { PackageJsonService } from '../package-json/package-json.service';
@@ -8,8 +9,8 @@ import { UpgradeCandidateService } from './upgrade-candidate.service';
 
 describe('UpgradeCandidateService', () => {
   const npmPackageService = {
-    getLatestVersion: jest.fn(),
-    getLatestVersionAtLeastNDaysOld: jest.fn(),
+    getLatestVersion: vi.fn(),
+    getLatestVersionAtLeastNDaysOld: vi.fn(),
   };
 
   async function createService(): Promise<UpgradeCandidateService> {
@@ -25,7 +26,7 @@ describe('UpgradeCandidateService', () => {
   }
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it('returns candidates when latest version is outside the wanted range', async () => {

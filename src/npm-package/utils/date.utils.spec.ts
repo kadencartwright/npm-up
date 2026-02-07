@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { calculateAgeInDays, createPackageVersion } from './date.utils';
 import { PackageVersion } from '../types/index.js';
 

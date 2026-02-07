@@ -1,3 +1,12 @@
+import {
+  describe,
+  it,
+  expect,
+  beforeEach,
+  beforeAll,
+  afterAll,
+  vi,
+} from 'vitest';
 import { Test } from '@nestjs/testing';
 import { ConfigModule } from '@nestjs/config';
 import { createServer, Server } from 'node:http';
@@ -88,7 +97,7 @@ describe('NpmPackageService Integration', () => {
       },
     };
 
-    jest.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
+    vi.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
     const service = await createService();
 
     await expect(service.getLatestVersion('example-pkg')).resolves.toEqual({
@@ -96,7 +105,7 @@ describe('NpmPackageService Integration', () => {
       publishedAt: new Date('2025-01-10T00:00:00.000Z'),
       ageInDays: 15,
     });
-    jest.useRealTimers();
+    vi.useRealTimers();
   });
 
   it('maps 404 responses to PackageNotFoundError', async () => {

@@ -25,10 +25,10 @@ export interface NpmPackageMetadata {
 @Injectable()
 export class NpmPackageService {
   constructor(
-    private readonly httpService: HttpService,
+    @Inject(HttpService) private readonly httpService: HttpService,
     // TODO: fix this lint error
     @Inject(CACHE_MANAGER) private readonly cacheManager: Cache,
-    private readonly configService: ConfigService,
+    @Inject(ConfigService) private readonly configService: ConfigService,
   ) {}
 
   async fetchPackageMetadata(packageName: string): Promise<NpmPackageMetadata> {

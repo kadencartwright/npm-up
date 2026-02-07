@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { Test } from '@nestjs/testing';
 import { PackageJsonService } from './package-json.service';
 import { InvalidDependenciesShapeError } from './errors/invalid-dependencies-shape.error';

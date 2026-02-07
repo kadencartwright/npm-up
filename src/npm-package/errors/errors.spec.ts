@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { NpmPackageError } from './npm-package.error';
 import { PackageNotFoundError } from './package-not-found.error';
 import { VersionNotFoundError } from './version-not-found.error';
