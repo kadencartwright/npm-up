@@ -1,0 +1,15 @@
+{
+    "$schema": "https://opencode.ai/config.json",
+    "tools": {
+        "clickhouse": false
+    },
+    "agent": {
+        "build": {
+            "permission": {
+                "bash": {
+                    "git commit *": "allow"
+                }
+            }
+        },
+    },
+}
