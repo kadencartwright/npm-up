@@ -110,7 +110,7 @@ interface PackageVersion {
 
 - [x] Create project structure and TypeScript configuration
 - [x] Implement `NpmPackageModule` with proper imports
-- [ ] Implement npm registry API client using `HttpService`
+- [x] Implement npm registry API client using `HttpService`
 - [x] Configure `CacheModule` with TTL support via `ConfigService`
 - [x] Implement error handling with custom error classes (co-located with service)
 - [x] Implement version filtering (pre-release & deprecated detection)
