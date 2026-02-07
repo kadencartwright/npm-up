@@ -141,3 +141,48 @@ NPM_CACHE_TTL=300000
 NPM_INCLUDE_PRERELEASE=false
 NPM_INCLUDE_DEPRECATED=false
 ```
+
+## package.json Dependency Parser Service
+
+`PackageJsonService` is provided by `PackageJsonModule` and exposes:
+
+- `parsePackageJsonString(content, options?)`
+- `parsePackageJsonObject(input, options?)`
+
+Each parsed entry includes:
+
+- `name`
+- `wantedRange`
+- `section` (`dependencies` or `devDependencies`)
+- optional `sourceLabel`
+
+### Usage example
+
+```ts
+import { Injectable } from '@nestjs/common';
+import { NpmPackageService } from './npm-package/npm-package.service';
+import { PackageJsonService } from './package-json/package-json.service';
+
+@Injectable()
+export class DependencyAuditService {
+  constructor(
+    private readonly packageJsonService: PackageJsonService,
+    private readonly npmPackageService: NpmPackageService,
+  ) {}
+
+  async listOutdated(packageJsonContent: string) {
+    const dependencies =
+      this.packageJsonService.parsePackageJsonString(packageJsonContent);
+
+    return Promise.all(
+      dependencies.map(async (dep) => {
+        const latest = await this.npmPackageService.getLatestVersion(dep.name);
+        return {
+          ...dep,
+          latestVersion: latest.version,
+        };
+      }),
+    );
+  }
+}
+```
