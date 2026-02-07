@@ -1,1 +1,1 @@
-// Main exports for npm-package module
+export { NpmPackageModule } from './npm-package/npm-package.module';
