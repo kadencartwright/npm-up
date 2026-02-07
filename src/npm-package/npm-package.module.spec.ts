@@ -1,3 +1,4 @@
+import { describe, it, expect, vi } from 'vitest';
 import { Test } from '@nestjs/testing';
 import { NpmPackageModule } from './npm-package.module';
 import { HttpModule } from '@nestjs/axios';
@@ -34,7 +35,7 @@ describe('NpmPackageModule', () => {
 
   it('should configure CacheModule with ConfigService', async () => {
     const mockConfigService = {
-      get: jest.fn(<T>(key: string, defaultValue: T): T => {
+      get: vi.fn(<T>(key: string, defaultValue: T): T => {
         if (key === 'NPM_CACHE_TTL') return 300000 as T;
         return defaultValue;
       }),
@@ -58,7 +59,7 @@ describe('NpmPackageModule', () => {
   it('should use custom cache TTL from environment', async () => {
     const customTtl = 600000;
     const mockConfigService = {
-      get: jest.fn(<T>(key: string, defaultValue: T): T => {
+      get: vi.fn(<T>(key: string, defaultValue: T): T => {
         if (key === 'NPM_CACHE_TTL') return customTtl as T;
         return defaultValue;
       }),
@@ -82,7 +83,7 @@ describe('NpmPackageModule', () => {
 
   it('should use default cache TTL when not configured', async () => {
     const mockConfigService = {
-      get: jest.fn(<T>(_key: string, defaultValue: T): T => {
+      get: vi.fn(<T>(_key: string, defaultValue: T): T => {
         return defaultValue;
       }),
     };

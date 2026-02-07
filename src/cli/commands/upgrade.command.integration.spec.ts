@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { promises as fs } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -26,7 +27,7 @@ describe('UpgradeCommand (integration)', () => {
   });
 
   afterEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
   });
 
   it('applies selected upgrades to a real temp package.json file', async () => {
@@ -73,7 +74,7 @@ describe('UpgradeCommand (integration)', () => {
     ];
 
     const upgradeCandidateService = {
-      findCandidates: jest.fn().mockResolvedValue({
+      findCandidates: vi.fn().mockResolvedValue({
         candidates,
         skipped: [],
         errors: [],
@@ -81,8 +82,8 @@ describe('UpgradeCommand (integration)', () => {
     };
 
     const cliPromptService = {
-      selectCandidates: jest.fn().mockResolvedValue(['dependencies:react']),
-      confirmApply: jest.fn().mockResolvedValue(true),
+      selectCandidates: vi.fn().mockResolvedValue(['dependencies:react']),
+      confirmApply: vi.fn().mockResolvedValue(true),
     };
 
     const moduleRef = await Test.createTestingModule({
@@ -102,7 +103,7 @@ describe('UpgradeCommand (integration)', () => {
     }).compile();
 
     const command = moduleRef.get(UpgradeCommand);
-    const consoleSpy = jest.spyOn(console, 'log').mockImplementation(() => {
+    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {
       return;
     });
 

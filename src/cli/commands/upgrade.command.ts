@@ -1,3 +1,4 @@
+import { Inject } from '@nestjs/common';
 import { Command, CommandRunner, Option } from 'nest-commander';
 import { CliPromptService } from '../cli-prompt.service';
 import { PackageJsonLocatorService } from '../package-json-locator.service';
@@ -16,9 +17,13 @@ export interface UpgradeCommandOptions {
 })
 export class UpgradeCommand extends CommandRunner {
   constructor(
+    @Inject(UpgradeCandidateService)
     private readonly upgradeCandidateService: UpgradeCandidateService,
+    @Inject(PackageJsonLocatorService)
     private readonly packageJsonLocatorService: PackageJsonLocatorService,
+    @Inject(PackageJsonWriterService)
     private readonly packageJsonWriterService: PackageJsonWriterService,
+    @Inject(CliPromptService)
     private readonly cliPromptService: CliPromptService,
   ) {
     super();

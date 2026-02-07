@@ -1,3 +1,4 @@
+import { describe, it, expect } from 'vitest';
 import { ConfigModule } from '@nestjs/config';
 import { Test } from '@nestjs/testing';
 import { UpgradeCandidateModule } from './upgrade-candidate.module';

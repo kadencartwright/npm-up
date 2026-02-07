@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Inject, Injectable } from '@nestjs/common';
 import * as semver from 'semver';
 import { NetworkError } from '../npm-package/errors/network.error';
 import { PackageNotFoundError } from '../npm-package/errors/package-not-found.error';
@@ -24,7 +24,9 @@ interface DependencyBase {
 @Injectable()
 export class UpgradeCandidateService {
   constructor(
+    @Inject(PackageJsonService)
     private readonly packageJsonService: PackageJsonService,
+    @Inject(NpmPackageService)
     private readonly npmPackageService: NpmPackageService,
   ) {}
 

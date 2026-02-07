@@ -1,3 +1,4 @@
+import { describe, it, expect, beforeEach, vi, type Mocked } from 'vitest';
 import { UpgradeCommand, UpgradeCommandOptions } from './upgrade.command';
 import { UpgradeCandidateService } from '../../upgrade-candidate/upgrade-candidate.service';
 import { PackageJsonLocatorService } from '../package-json-locator.service';
@@ -15,19 +16,19 @@ describe('UpgradeCommand', () => {
 
   function createCommand() {
     const upgradeCandidateService = {
-      findCandidates: jest.fn(),
-    } as unknown as jest.Mocked<UpgradeCandidateService>;
+      findCandidates: vi.fn(),
+    } as unknown as Mocked<UpgradeCandidateService>;
     const locator = {
-      resolvePackageJsonPath: jest.fn(),
-      readPackageJson: jest.fn(),
-    } as unknown as jest.Mocked<PackageJsonLocatorService>;
+      resolvePackageJsonPath: vi.fn(),
+      readPackageJson: vi.fn(),
+    } as unknown as Mocked<PackageJsonLocatorService>;
     const writer = {
-      applyUpgradesFromFile: jest.fn(),
-    } as unknown as jest.Mocked<PackageJsonWriterService>;
+      applyUpgradesFromFile: vi.fn(),
+    } as unknown as Mocked<PackageJsonWriterService>;
     const prompts = {
-      selectCandidates: jest.fn(),
-      confirmApply: jest.fn(),
-    } as unknown as jest.Mocked<CliPromptService>;
+      selectCandidates: vi.fn(),
+      confirmApply: vi.fn(),
+    } as unknown as Mocked<CliPromptService>;
 
     const command = new UpgradeCommand(
       upgradeCandidateService,
@@ -51,7 +52,7 @@ describe('UpgradeCommand', () => {
   }
 
   beforeEach(() => {
-    jest.restoreAllMocks();
+    vi.restoreAllMocks();
     setTTY(true);
   });
 
