@@ -96,3 +96,48 @@ Nest is an MIT-licensed open source project. It can grow thanks to the sponsors 
 ## License
 
 Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+
+## npm Package Metadata Service
+
+`NpmPackageService` is provided by `NpmPackageModule` and exposes:
+
+- `getVersionAge(packageName, version)`
+- `getLatestVersion(packageName)`
+- `getLatestVersionAtLeastNDaysOld(packageName, days)`
+
+### Usage example
+
+```ts
+import { Injectable } from '@nestjs/common';
+import { NpmPackageService } from './npm-package/npm-package.service';
+
+@Injectable()
+export class ExampleService {
+  constructor(private readonly npmPackageService: NpmPackageService) {}
+
+  async run(): Promise<void> {
+    const lodashAge = await this.npmPackageService.getVersionAge(
+      'lodash',
+      '4.17.21',
+    );
+    const latestReact = await this.npmPackageService.getLatestVersion('react');
+    const stableExpress =
+      await this.npmPackageService.getLatestVersionAtLeastNDaysOld(
+        'express',
+        30,
+      );
+
+    console.log(lodashAge, latestReact.version, stableExpress?.version);
+  }
+}
+```
+
+### Environment configuration
+
+```bash
+NPM_REGISTRY_URL=https://registry.npmjs.org
+NPM_TIMEOUT=10000
+NPM_CACHE_TTL=300000
+NPM_INCLUDE_PRERELEASE=false
+NPM_INCLUDE_DEPRECATED=false
+```
