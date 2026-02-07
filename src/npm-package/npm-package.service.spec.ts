@@ -358,4 +358,90 @@ describe('NpmPackageService', () => {
       VersionNotFoundError,
     );
   });
+
+  it('returns latest version that is at least N days old', async () => {
+    const service = await createService();
+    const metadata = {
+      name: 'example-pkg',
+      versions: {
+        '1.0.0': {},
+        '1.1.0': {},
+        '1.2.0': {},
+      },
+      time: {
+        '1.0.0': '2025-01-01T00:00:00.000Z',
+        '1.1.0': '2025-01-10T00:00:00.000Z',
+        '1.2.0': '2025-01-20T00:00:00.000Z',
+      },
+    };
+
+    jest.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
+    configService.get.mockImplementation((key: string, defaultValue: unknown) =>
+      defaultValue,
+    );
+    httpService.get.mockReturnValue(of({ data: metadata }));
+
+    await expect(
+      service.getLatestVersionAtLeastNDaysOld('example-pkg', 10),
+    ).resolves.toEqual<PackageVersion>({
+      version: '1.1.0',
+      publishedAt: new Date('2025-01-10T00:00:00.000Z'),
+      ageInDays: 15,
+    });
+    jest.useRealTimers();
+  });
+
+  it('returns null when no eligible version meets the minimum age', async () => {
+    const service = await createService();
+    const metadata = {
+      name: 'example-pkg',
+      versions: {
+        '1.2.0': {},
+      },
+      time: {
+        '1.2.0': '2025-01-20T00:00:00.000Z',
+      },
+    };
+
+    jest.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
+    configService.get.mockImplementation((key: string, defaultValue: unknown) =>
+      defaultValue,
+    );
+    httpService.get.mockReturnValue(of({ data: metadata }));
+
+    await expect(
+      service.getLatestVersionAtLeastNDaysOld('example-pkg', 10),
+    ).resolves.toBeNull();
+    jest.useRealTimers();
+  });
+
+  it('applies filtering before age selection', async () => {
+    const service = await createService();
+    const metadata = {
+      name: 'example-pkg',
+      versions: {
+        '1.0.0': {},
+        '2.0.0-beta.1': {},
+      },
+      time: {
+        '1.0.0': '2025-01-01T00:00:00.000Z',
+        '2.0.0-beta.1': '2025-01-10T00:00:00.000Z',
+      },
+    };
+
+    jest.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
+    configService.get.mockImplementation((key: string, defaultValue: unknown) =>
+      defaultValue,
+    );
+    httpService.get.mockReturnValue(of({ data: metadata }));
+
+    await expect(
+      service.getLatestVersionAtLeastNDaysOld('example-pkg', 5),
+    ).resolves.toEqual<PackageVersion>({
+      version: '1.0.0',
+      publishedAt: new Date('2025-01-01T00:00:00.000Z'),
+      ageInDays: 24,
+    });
+    jest.useRealTimers();
+  });
 });

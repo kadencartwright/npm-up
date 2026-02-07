@@ -118,7 +118,7 @@ interface PackageVersion {
 - [x] Implement `@Injectable()` `NpmPackageService` with constructor injection
 - [x] Implement `getVersionAge` method with filtering support
 - [x] Implement `getLatestVersion` method with filtering support
-- [ ] Implement `getLatestVersionAtLeastNDaysOld` method with filtering support
+- [x] Implement `getLatestVersionAtLeastNDaysOld` method with filtering support
 - [ ] Write comprehensive unit tests using `@nestjs/testing`
 - [ ] Write integration tests with mocked npm API
 - [ ] Add documentation and usage examples

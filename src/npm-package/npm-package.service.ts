@@ -105,6 +105,33 @@ export class NpmPackageService {
     return createPackageVersion(latestVersion, metadata.time[latestVersion]);
   }
 
+  async getLatestVersionAtLeastNDaysOld(
+    packageName: string,
+    days: number,
+  ): Promise<PackageVersion | null> {
+    const metadata = await this.fetchPackageMetadata(packageName);
+    const includePrerelease = this.readBooleanConfig('NPM_INCLUDE_PRERELEASE');
+    const includeDeprecated = this.readBooleanConfig('NPM_INCLUDE_DEPRECATED');
+
+    const candidate = Object.keys(metadata.versions)
+      .filter((version) => {
+        const versionMetadata = metadata.versions[version];
+        const publishedAt = metadata.time[version];
+        if (!versionMetadata || !publishedAt) {
+          return false;
+        }
+        return shouldIncludeVersion(version, versionMetadata, {
+          includePrerelease,
+          includeDeprecated,
+        });
+      })
+      .sort((a, b) => semver.rcompare(a, b))
+      .map((version) => createPackageVersion(version, metadata.time[version]))
+      .find((packageVersion) => packageVersion.ageInDays >= days);
+
+    return candidate ?? null;
+  }
+
   private readBooleanConfig(key: string): boolean {
     const value = this.configService.get<boolean | string>(key, false);
     if (typeof value === 'boolean') {
