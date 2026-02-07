@@ -94,6 +94,11 @@ export class NpmPackageService {
     return createPackageVersion(latestVersion, metadata.time[latestVersion]);
   }
 
+  async getEligibleVersions(packageName: string): Promise<string[]> {
+    const metadata = await this.fetchPackageMetadata(packageName);
+    return this.getSortedEligibleVersions(metadata);
+  }
+
   async getLatestVersionAtLeastNDaysOld(
     packageName: string,
     days: number,

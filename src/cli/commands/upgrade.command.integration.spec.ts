@@ -9,6 +9,7 @@ import { PackageJsonWriterService } from '../package-json-writer.service';
 import { UpgradeCandidateService } from '../../upgrade-candidate/upgrade-candidate.service';
 import { UpgradeCandidate } from '../../upgrade-candidate/types';
 import { UpgradeCommand } from './upgrade.command';
+import { NpmPackageService } from '../../npm-package/npm-package.service';
 
 describe('UpgradeCommand (integration)', () => {
   function setTTY(value: boolean): void {
@@ -82,8 +83,16 @@ describe('UpgradeCommand (integration)', () => {
     };
 
     const cliPromptService = {
-      selectCandidates: vi.fn().mockResolvedValue(['dependencies:react']),
+      selectCandidates: vi.fn().mockResolvedValue({
+        selectedCandidates: [candidates[0]],
+        manualVersionKeys: [],
+      }),
+      confirmUseRecommendedVersions: vi.fn().mockResolvedValue(true),
+      selectTargetVersions: vi.fn(),
       confirmApply: vi.fn().mockResolvedValue(true),
+    };
+    const npmPackageService = {
+      getEligibleVersions: vi.fn().mockResolvedValue(['19.0.1', '18.2.0']),
     };
 
     const moduleRef = await Test.createTestingModule({
@@ -98,6 +107,10 @@ describe('UpgradeCommand (integration)', () => {
         {
           provide: CliPromptService,
           useValue: cliPromptService,
+        },
+        {
+          provide: NpmPackageService,
+          useValue: npmPackageService,
         },
       ],
     }).compile();

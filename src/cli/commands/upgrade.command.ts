@@ -1,10 +1,13 @@
 import { Inject } from '@nestjs/common';
 import { Command, CommandRunner, Option } from 'nest-commander';
+import * as semver from 'semver';
 import { CliPromptService } from '../cli-prompt.service';
 import { PackageJsonLocatorService } from '../package-json-locator.service';
 import { PackageJsonWriterService } from '../package-json-writer.service';
 import { DependencySection } from '../../package-json/types';
 import { UpgradeCandidateService } from '../../upgrade-candidate/upgrade-candidate.service';
+import { UpgradeCandidate } from '../../upgrade-candidate/types';
+import { NpmPackageService } from '../../npm-package/npm-package.service';
 
 export interface UpgradeCommandOptions {
   packageJson?: string;
@@ -25,6 +28,8 @@ export class UpgradeCommand extends CommandRunner {
     private readonly packageJsonWriterService: PackageJsonWriterService,
     @Inject(CliPromptService)
     private readonly cliPromptService: CliPromptService,
+    @Inject(NpmPackageService)
+    private readonly npmPackageService: NpmPackageService,
   ) {
     super();
   }
@@ -55,22 +60,55 @@ export class UpgradeCommand extends CommandRunner {
       return;
     }
 
-    const selectedKeys = await this.cliPromptService.selectCandidates(
-      result.candidates,
+    const selection = await this.cliPromptService.selectCandidates(
+      await this.enrichVersionSelectionMetadata(result.candidates),
     );
-    if (selectedKeys.length === 0) {
+    if (selection.selectedCandidates.length === 0) {
       console.log('No packages selected. No changes made.');
       return;
     }
 
-    const selected = result.candidates.filter((candidate) =>
-      selectedKeys.includes(
+    const selected = selection.selectedCandidates;
+    const manualTargets = selected.filter((candidate) =>
+      selection.manualVersionKeys.includes(
         this.createCandidateKey(candidate.section, candidate.name),
       ),
     );
+    const remainingTargets = selected.filter(
+      (candidate) =>
+        !selection.manualVersionKeys.includes(
+          this.createCandidateKey(candidate.section, candidate.name),
+        ),
+    );
+
+    let selectedTargets: UpgradeCandidate[] = selected;
+    if (manualTargets.length > 0 && remainingTargets.length > 0) {
+      const useRecommendedVersions =
+        await this.cliPromptService.confirmUseRecommendedVersions();
+      const processedRemaining = useRecommendedVersions
+        ? remainingTargets
+        : ((await this.cliPromptService.selectTargetVersions(
+            remainingTargets,
+          )) ?? remainingTargets);
+      selectedTargets = selected.map((candidate) => {
+        const key = this.createCandidateKey(candidate.section, candidate.name);
+        const match = [...manualTargets, ...processedRemaining].find(
+          (next) => this.createCandidateKey(next.section, next.name) === key,
+        );
+        return match ?? candidate;
+      });
+    } else if (manualTargets.length === 0) {
+      const useRecommendedVersions =
+        await this.cliPromptService.confirmUseRecommendedVersions();
+      selectedTargets = useRecommendedVersions
+        ? selected
+        : await this.cliPromptService.selectTargetVersions(selected);
+    } else {
+      selectedTargets = selected;
+    }
 
     const confirmed = await this.cliPromptService.confirmApply(
-      selected.length,
+      selectedTargets.length,
       packageJsonPath,
     );
     if (!confirmed) {
@@ -80,7 +118,7 @@ export class UpgradeCommand extends CommandRunner {
 
     const updated = await this.packageJsonWriterService.applyUpgradesFromFile(
       packageJsonPath,
-      selected,
+      selectedTargets,
     );
     console.log(`Updated ${updated} dependencies in ${packageJsonPath}.`);
   }
@@ -119,5 +157,31 @@ export class UpgradeCommand extends CommandRunner {
 
   private createCandidateKey(section: DependencySection, name: string): string {
     return `${section}:${name}`;
+  }
+
+  private async enrichVersionSelectionMetadata(
+    candidates: UpgradeCandidate[],
+  ): Promise<UpgradeCandidate[]> {
+    return Promise.all(
+      candidates.map(async (candidate) => {
+        try {
+          const eligibleVersions =
+            await this.npmPackageService.getEligibleVersions(candidate.name);
+          return {
+            ...candidate,
+            eligibleVersions,
+            currentBaselineVersion: semver.minVersion(candidate.wantedRange)
+              ?.version,
+          };
+        } catch {
+          return {
+            ...candidate,
+            eligibleVersions: [candidate.targetVersion],
+            currentBaselineVersion: semver.minVersion(candidate.wantedRange)
+              ?.version,
+          };
+        }
+      }),
+    );
   }
 }

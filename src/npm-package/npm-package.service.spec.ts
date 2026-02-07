@@ -520,4 +520,33 @@ describe('NpmPackageService', () => {
     });
     vi.useRealTimers();
   });
+
+  it('returns sorted eligible versions for version selection', async () => {
+    const service = await createService();
+    const metadata = {
+      name: 'example-pkg',
+      versions: {
+        '2.0.0-beta.1': {},
+        '1.2.0': {},
+        '1.1.0': { deprecated: 'old' },
+        '1.0.0': {},
+      },
+      time: {
+        '2.0.0-beta.1': '2025-01-20T00:00:00.000Z',
+        '1.2.0': '2025-01-15T00:00:00.000Z',
+        '1.1.0': '2025-01-10T00:00:00.000Z',
+        '1.0.0': '2025-01-05T00:00:00.000Z',
+      },
+    };
+
+    configService.get.mockImplementation(
+      (key: string, defaultValue: unknown) => defaultValue,
+    );
+    httpService.get.mockReturnValue(of({ data: metadata }));
+
+    await expect(service.getEligibleVersions('example-pkg')).resolves.toEqual([
+      '1.2.0',
+      '1.0.0',
+    ]);
+  });
 });

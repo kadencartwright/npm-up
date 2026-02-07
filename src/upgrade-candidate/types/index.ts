@@ -15,6 +15,8 @@ export interface UpgradeCandidate {
   section: DependencySection;
   wantedRange: string;
   targetVersion: string;
+  eligibleVersions?: string[];
+  currentBaselineVersion?: string;
   criterion: 'latest' | 'minAge';
   minAgeDays?: number;
   sourceLabel?: string;

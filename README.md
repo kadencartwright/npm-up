@@ -26,6 +26,8 @@ Behavior:
 - analyzes `dependencies` and `devDependencies`
 - skips non-semver specifiers and reports skips
 - lets you select which candidates to apply
+- optionally lets you choose a specific target version per selected package
+- in package selection, press `v` on the highlighted package to mark/unmark version override
 - confirms before writing changes
 - updates only selected dependencies in `package.json`
 - preserves range style (`^`, `~`, exact)
