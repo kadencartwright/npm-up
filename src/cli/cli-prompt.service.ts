@@ -13,6 +13,7 @@ export class CliPromptService {
         value: this.createCandidateKey(candidate.section, candidate.name),
       })),
       pageSize: 15,
+      loop: false,
     });
   }
 
