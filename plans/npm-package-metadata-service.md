@@ -116,7 +116,7 @@ interface PackageVersion {
 - [x] Implement version filtering (pre-release & deprecated detection)
 - [x] Define TypeScript interfaces (`PackageVersion`) and implement date calculation utilities (`calculateAgeInDays`, `createPackageVersion`)
 - [x] Implement `@Injectable()` `NpmPackageService` with constructor injection
-- [ ] Implement `getVersionAge` method with filtering support
+- [x] Implement `getVersionAge` method with filtering support
 - [ ] Implement `getLatestVersion` method with filtering support
 - [ ] Implement `getLatestVersionAtLeastNDaysOld` method with filtering support
 - [ ] Write comprehensive unit tests using `@nestjs/testing`

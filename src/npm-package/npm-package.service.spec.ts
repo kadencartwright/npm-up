@@ -6,6 +6,7 @@ import { of, throwError } from 'rxjs';
 import { NpmPackageService } from './npm-package.service';
 import { PackageNotFoundError } from './errors/package-not-found.error';
 import { NetworkError } from './errors/network.error';
+import { VersionNotFoundError } from './errors/version-not-found.error';
 
 describe('NpmPackageService', () => {
   const httpService = { get: jest.fn() };
@@ -124,5 +125,145 @@ describe('NpmPackageService', () => {
     await expect(service.fetchPackageMetadata('lodash')).rejects.toBeInstanceOf(
       NetworkError,
     );
+  });
+
+  it('returns age in days for an existing stable version', async () => {
+    const service = await createService();
+    const metadata = {
+      name: 'example-pkg',
+      versions: {
+        '1.0.0': {},
+      },
+      time: {
+        '1.0.0': '2025-01-10T00:00:00.000Z',
+      },
+    };
+
+    jest.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
+    configService.get.mockImplementation((key: string, defaultValue: unknown) =>
+      defaultValue,
+    );
+    httpService.get.mockReturnValue(of({ data: metadata }));
+
+    await expect(service.getVersionAge('example-pkg', '1.0.0')).resolves.toBe(15);
+    jest.useRealTimers();
+  });
+
+  it('throws VersionNotFoundError when the version does not exist', async () => {
+    const service = await createService();
+    const metadata = {
+      name: 'example-pkg',
+      versions: {
+        '1.0.0': {},
+      },
+      time: {
+        '1.0.0': '2025-01-10T00:00:00.000Z',
+      },
+    };
+
+    configService.get.mockImplementation((key: string, defaultValue: unknown) =>
+      defaultValue,
+    );
+    httpService.get.mockReturnValue(of({ data: metadata }));
+
+    await expect(service.getVersionAge('example-pkg', '2.0.0')).rejects.toBeInstanceOf(
+      VersionNotFoundError,
+    );
+  });
+
+  it('excludes prerelease versions by default', async () => {
+    const service = await createService();
+    const metadata = {
+      name: 'example-pkg',
+      versions: {
+        '2.0.0-beta.1': {},
+      },
+      time: {
+        '2.0.0-beta.1': '2025-01-10T00:00:00.000Z',
+      },
+    };
+
+    configService.get.mockImplementation((key: string, defaultValue: unknown) =>
+      defaultValue,
+    );
+    httpService.get.mockReturnValue(of({ data: metadata }));
+
+    await expect(
+      service.getVersionAge('example-pkg', '2.0.0-beta.1'),
+    ).rejects.toBeInstanceOf(VersionNotFoundError);
+  });
+
+  it('includes prerelease versions when enabled by config', async () => {
+    const service = await createService();
+    const metadata = {
+      name: 'example-pkg',
+      versions: {
+        '2.0.0-beta.1': {},
+      },
+      time: {
+        '2.0.0-beta.1': '2025-01-10T00:00:00.000Z',
+      },
+    };
+
+    jest.useFakeTimers().setSystemTime(new Date('2025-01-20T00:00:00.000Z'));
+    configService.get.mockImplementation((key: string, defaultValue: unknown) => {
+      if (key === 'NPM_INCLUDE_PRERELEASE') {
+        return true;
+      }
+      return defaultValue;
+    });
+    httpService.get.mockReturnValue(of({ data: metadata }));
+
+    await expect(service.getVersionAge('example-pkg', '2.0.0-beta.1')).resolves.toBe(
+      10,
+    );
+    jest.useRealTimers();
+  });
+
+  it('excludes deprecated versions by default', async () => {
+    const service = await createService();
+    const metadata = {
+      name: 'example-pkg',
+      versions: {
+        '1.5.0': { deprecated: 'Use 2.x' },
+      },
+      time: {
+        '1.5.0': '2025-01-10T00:00:00.000Z',
+      },
+    };
+
+    configService.get.mockImplementation((key: string, defaultValue: unknown) =>
+      defaultValue,
+    );
+    httpService.get.mockReturnValue(of({ data: metadata }));
+
+    await expect(service.getVersionAge('example-pkg', '1.5.0')).rejects.toBeInstanceOf(
+      VersionNotFoundError,
+    );
+  });
+
+  it('includes deprecated versions when configured with env string true', async () => {
+    const service = await createService();
+    const metadata = {
+      name: 'example-pkg',
+      versions: {
+        '1.5.0': { deprecated: 'Use 2.x' },
+      },
+      time: {
+        '1.5.0': '2025-01-10T00:00:00.000Z',
+      },
+    };
+
+    jest.useFakeTimers().setSystemTime(new Date('2025-01-20T00:00:00.000Z'));
+    configService.get.mockImplementation((key: string, defaultValue: unknown) => {
+      if (key === 'NPM_INCLUDE_DEPRECATED') {
+        return 'true';
+      }
+      return defaultValue;
+    });
+    httpService.get.mockReturnValue(of({ data: metadata }));
+
+    await expect(service.getVersionAge('example-pkg', '1.5.0')).resolves.toBe(10);
+    jest.useRealTimers();
   });
 });

@@ -6,10 +6,17 @@ import { Cache } from 'cache-manager';
 import { firstValueFrom } from 'rxjs';
 import { NetworkError } from './errors/network.error';
 import { PackageNotFoundError } from './errors/package-not-found.error';
+import { VersionNotFoundError } from './errors/version-not-found.error';
+import { calculateAgeInDays } from './utils/date.utils';
+import { shouldIncludeVersion } from './utils/version-filter';
+
+export interface NpmVersionMetadata {
+  deprecated?: string;
+}
 
 export interface NpmPackageMetadata {
   name: string;
-  versions: Record<string, unknown>;
+  versions: Record<string, NpmVersionMetadata>;
   time: Record<string, string>;
 }
 
@@ -45,5 +52,36 @@ export class NpmPackageService {
       const message = error instanceof Error ? error.message : 'Request failed';
       throw new NetworkError(message, error instanceof Error ? error : undefined);
     }
+  }
+
+  async getVersionAge(packageName: string, version: string): Promise<number> {
+    const metadata = await this.fetchPackageMetadata(packageName);
+    const versionMetadata = metadata.versions[version];
+    const publishedAt = metadata.time[version];
+
+    if (!versionMetadata || !publishedAt) {
+      throw new VersionNotFoundError(packageName, version);
+    }
+
+    const includePrerelease = this.readBooleanConfig('NPM_INCLUDE_PRERELEASE');
+    const includeDeprecated = this.readBooleanConfig('NPM_INCLUDE_DEPRECATED');
+    const isIncluded = shouldIncludeVersion(version, versionMetadata, {
+      includePrerelease,
+      includeDeprecated,
+    });
+
+    if (!isIncluded) {
+      throw new VersionNotFoundError(packageName, version);
+    }
+
+    return calculateAgeInDays(publishedAt);
+  }
+
+  private readBooleanConfig(key: string): boolean {
+    const value = this.configService.get<boolean | string>(key, false);
+    if (typeof value === 'boolean') {
+      return value;
+    }
+    return value === 'true';
   }
 }
