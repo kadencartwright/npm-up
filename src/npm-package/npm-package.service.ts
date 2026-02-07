@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { ConfigService } from '@nestjs/config';
-import { Cache } from 'cache-manager';
+import type { Cache } from 'cache-manager';
 import { firstValueFrom } from 'rxjs';
 import * as semver from 'semver';
 import { NetworkError } from './errors/network.error';
