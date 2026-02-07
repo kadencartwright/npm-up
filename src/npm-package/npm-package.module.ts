@@ -1,0 +1,1 @@
+// NpmPackageModule - NestJS module definition
