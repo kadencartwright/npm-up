@@ -81,22 +81,7 @@ export class NpmPackageService {
 
   async getLatestVersion(packageName: string): Promise<PackageVersion> {
     const metadata = await this.fetchPackageMetadata(packageName);
-    const includePrerelease = this.readBooleanConfig('NPM_INCLUDE_PRERELEASE');
-    const includeDeprecated = this.readBooleanConfig('NPM_INCLUDE_DEPRECATED');
-
-    const latestVersion = Object.keys(metadata.versions)
-      .filter((version) => {
-        const versionMetadata = metadata.versions[version];
-        const publishedAt = metadata.time[version];
-        if (!versionMetadata || !publishedAt) {
-          return false;
-        }
-        return shouldIncludeVersion(version, versionMetadata, {
-          includePrerelease,
-          includeDeprecated,
-        });
-      })
-      .sort((a, b) => semver.rcompare(a, b))[0];
+    const latestVersion = this.getSortedEligibleVersions(metadata)[0];
 
     if (!latestVersion) {
       throw new VersionNotFoundError(packageName, 'latest');
@@ -110,10 +95,19 @@ export class NpmPackageService {
     days: number,
   ): Promise<PackageVersion | null> {
     const metadata = await this.fetchPackageMetadata(packageName);
+    const candidate = this.getSortedEligibleVersions(metadata)
+      .map((version) => createPackageVersion(version, metadata.time[version]))
+      .find((packageVersion) => packageVersion.ageInDays >= days);
+
+    return candidate ?? null;
+  }
+
+  private getSortedEligibleVersions(metadata: NpmPackageMetadata): string[] {
     const includePrerelease = this.readBooleanConfig('NPM_INCLUDE_PRERELEASE');
     const includeDeprecated = this.readBooleanConfig('NPM_INCLUDE_DEPRECATED');
 
-    const candidate = Object.keys(metadata.versions)
+    return Object.keys(metadata.versions)
+      .filter((version) => semver.valid(version) !== null)
       .filter((version) => {
         const versionMetadata = metadata.versions[version];
         const publishedAt = metadata.time[version];
@@ -125,11 +119,7 @@ export class NpmPackageService {
           includeDeprecated,
         });
       })
-      .sort((a, b) => semver.rcompare(a, b))
-      .map((version) => createPackageVersion(version, metadata.time[version]))
-      .find((packageVersion) => packageVersion.ageInDays >= days);
-
-    return candidate ?? null;
+      .sort((a, b) => semver.rcompare(a, b));
   }
 
   private readBooleanConfig(key: string): boolean {

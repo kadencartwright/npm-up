@@ -444,4 +444,64 @@ describe('NpmPackageService', () => {
     });
     jest.useRealTimers();
   });
+
+  it('ignores invalid semver entries when selecting latest version', async () => {
+    const service = await createService();
+    const metadata = {
+      name: 'example-pkg',
+      versions: {
+        foo: {},
+        '1.2.0': {},
+      },
+      time: {
+        foo: '2025-01-20T00:00:00.000Z',
+        '1.2.0': '2025-01-10T00:00:00.000Z',
+      },
+    };
+
+    jest.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
+    configService.get.mockImplementation((key: string, defaultValue: unknown) =>
+      defaultValue,
+    );
+    httpService.get.mockReturnValue(of({ data: metadata }));
+
+    await expect(service.getLatestVersion('example-pkg')).resolves.toEqual<PackageVersion>(
+      {
+        version: '1.2.0',
+        publishedAt: new Date('2025-01-10T00:00:00.000Z'),
+        ageInDays: 15,
+      },
+    );
+    jest.useRealTimers();
+  });
+
+  it('ignores invalid semver entries for N-days-old lookup', async () => {
+    const service = await createService();
+    const metadata = {
+      name: 'example-pkg',
+      versions: {
+        foo: {},
+        '1.1.0': {},
+      },
+      time: {
+        foo: '2025-01-20T00:00:00.000Z',
+        '1.1.0': '2025-01-05T00:00:00.000Z',
+      },
+    };
+
+    jest.useFakeTimers().setSystemTime(new Date('2025-01-25T00:00:00.000Z'));
+    configService.get.mockImplementation((key: string, defaultValue: unknown) =>
+      defaultValue,
+    );
+    httpService.get.mockReturnValue(of({ data: metadata }));
+
+    await expect(
+      service.getLatestVersionAtLeastNDaysOld('example-pkg', 10),
+    ).resolves.toEqual<PackageVersion>({
+      version: '1.1.0',
+      publishedAt: new Date('2025-01-05T00:00:00.000Z'),
+      ageInDays: 20,
+    });
+    jest.useRealTimers();
+  });
 });

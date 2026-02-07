@@ -119,7 +119,7 @@ interface PackageVersion {
 - [x] Implement `getVersionAge` method with filtering support
 - [x] Implement `getLatestVersion` method with filtering support
 - [x] Implement `getLatestVersionAtLeastNDaysOld` method with filtering support
-- [ ] Write comprehensive unit tests using `@nestjs/testing`
+- [x] Write comprehensive unit tests using `@nestjs/testing`
 - [ ] Write integration tests with mocked npm API
 - [ ] Add documentation and usage examples
 - [ ] Verify all tests pass
