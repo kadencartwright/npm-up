@@ -4,11 +4,13 @@ import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
 import { firstValueFrom } from 'rxjs';
+import * as semver from 'semver';
 import { NetworkError } from './errors/network.error';
 import { PackageNotFoundError } from './errors/package-not-found.error';
 import { VersionNotFoundError } from './errors/version-not-found.error';
-import { calculateAgeInDays } from './utils/date.utils';
+import { calculateAgeInDays, createPackageVersion } from './utils/date.utils';
 import { shouldIncludeVersion } from './utils/version-filter';
+import { PackageVersion } from './types';
 
 export interface NpmVersionMetadata {
   deprecated?: string;
@@ -75,6 +77,32 @@ export class NpmPackageService {
     }
 
     return calculateAgeInDays(publishedAt);
+  }
+
+  async getLatestVersion(packageName: string): Promise<PackageVersion> {
+    const metadata = await this.fetchPackageMetadata(packageName);
+    const includePrerelease = this.readBooleanConfig('NPM_INCLUDE_PRERELEASE');
+    const includeDeprecated = this.readBooleanConfig('NPM_INCLUDE_DEPRECATED');
+
+    const latestVersion = Object.keys(metadata.versions)
+      .filter((version) => {
+        const versionMetadata = metadata.versions[version];
+        const publishedAt = metadata.time[version];
+        if (!versionMetadata || !publishedAt) {
+          return false;
+        }
+        return shouldIncludeVersion(version, versionMetadata, {
+          includePrerelease,
+          includeDeprecated,
+        });
+      })
+      .sort((a, b) => semver.rcompare(a, b))[0];
+
+    if (!latestVersion) {
+      throw new VersionNotFoundError(packageName, 'latest');
+    }
+
+    return createPackageVersion(latestVersion, metadata.time[latestVersion]);
   }
 
   private readBooleanConfig(key: string): boolean {
