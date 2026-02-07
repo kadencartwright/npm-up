@@ -32,7 +32,7 @@ describe('UpgradeCommand (integration)', () => {
 
   it('applies selected upgrades to a real temp package.json file', async () => {
     const workspace = await fs.mkdtemp(
-      join(tmpdir(), 'npm-up-cli-integration-'),
+      join(tmpdir(), 'pack-up-cli-integration-'),
     );
     const packagePath = join(workspace, 'package.json');
 

@@ -9,7 +9,7 @@ describe('PackageJsonWriterService', () => {
   const service = new PackageJsonWriterService();
 
   it('updates selected candidates and preserves range prefix', async () => {
-    const dir = await fs.mkdtemp(join(tmpdir(), 'npm-up-write-'));
+    const dir = await fs.mkdtemp(join(tmpdir(), 'pack-up-write-'));
     const packagePath = join(dir, 'package.json');
 
     await fs.writeFile(
@@ -73,7 +73,7 @@ describe('PackageJsonWriterService', () => {
   });
 
   it('ignores candidates not present in target sections', async () => {
-    const dir = await fs.mkdtemp(join(tmpdir(), 'npm-up-write-'));
+    const dir = await fs.mkdtemp(join(tmpdir(), 'pack-up-write-'));
     const packagePath = join(dir, 'package.json');
 
     await fs.writeFile(

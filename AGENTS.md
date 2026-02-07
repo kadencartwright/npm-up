@@ -1,4 +1,4 @@
-# npm-up
+# pack-up
 
 ## Running tests
 

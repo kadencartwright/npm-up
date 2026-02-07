@@ -8,7 +8,7 @@ describe('PackageJsonLocatorService', () => {
   const service = new PackageJsonLocatorService();
 
   it('resolves cwd package.json by default', async () => {
-    const dir = await fs.mkdtemp(join(tmpdir(), 'npm-up-locate-'));
+    const dir = await fs.mkdtemp(join(tmpdir(), 'pack-up-locate-'));
     const packagePath = join(dir, 'package.json');
     await fs.writeFile(packagePath, '{"name":"demo"}', 'utf8');
 
@@ -18,7 +18,7 @@ describe('PackageJsonLocatorService', () => {
   });
 
   it('throws when default cwd package.json is missing', async () => {
-    const dir = await fs.mkdtemp(join(tmpdir(), 'npm-up-locate-'));
+    const dir = await fs.mkdtemp(join(tmpdir(), 'pack-up-locate-'));
 
     await expect(
       service.resolvePackageJsonPath(undefined, dir),
@@ -26,7 +26,7 @@ describe('PackageJsonLocatorService', () => {
   });
 
   it('resolves explicit package path relative to cwd', async () => {
-    const dir = await fs.mkdtemp(join(tmpdir(), 'npm-up-locate-'));
+    const dir = await fs.mkdtemp(join(tmpdir(), 'pack-up-locate-'));
     const packagePath = join(dir, 'configs', 'project.package.json');
     await fs.mkdir(join(dir, 'configs'), { recursive: true });
     await fs.writeFile(packagePath, '{"name":"demo"}', 'utf8');

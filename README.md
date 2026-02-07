@@ -1,6 +1,6 @@
-# npm-up
+# pack-up
 
-`npm-up` provides NestJS modules and a CLI command to analyze `package.json` dependencies and select upgrades.
+`pack-up` provides NestJS modules and a CLI command to analyze `package.json` dependencies and select upgrades.
 
 ## Install
 
