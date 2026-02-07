@@ -111,9 +111,10 @@ interface PackageVersion {
 - [x] Create project structure and TypeScript configuration
 - [x] Implement `NpmPackageModule` with proper imports
 - [ ] Implement npm registry API client using `HttpService`
-- [ ] Configure `CacheModule` with TTL support via `ConfigService`
-- [ ] Implement error handling with custom error classes (co-located with service)
-- [ ] Implement version filtering (pre-release & deprecated detection)
+- [x] Configure `CacheModule` with TTL support via `ConfigService`
+- [x] Implement error handling with custom error classes (co-located with service)
+- [x] Implement version filtering (pre-release & deprecated detection)
+- [x] Define TypeScript interfaces (`PackageVersion`) and implement date calculation utilities (`calculateAgeInDays`, `createPackageVersion`)
 - [ ] Implement `@Injectable()` `NpmPackageService` with constructor injection
 - [ ] Implement `getVersionAge` method with filtering support
 - [ ] Implement `getLatestVersion` method with filtering support

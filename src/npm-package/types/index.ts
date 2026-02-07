@@ -1,1 +1,5 @@
-// TypeScript interfaces for npm-package module
+export interface PackageVersion {
+  version: string;
+  publishedAt: Date;
+  ageInDays: number;
+}
