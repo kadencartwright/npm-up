@@ -3,6 +3,8 @@ import { HttpModule } from '@nestjs/axios';
 import { CacheModule } from '@nestjs/cache-manager';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 
+import { NpmPackageService } from './npm-package.service';
+
 @Module({
   imports: [
     HttpModule,
@@ -14,7 +16,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       inject: [ConfigService],
     }),
   ],
-  providers: [],
-  exports: [],
+  providers: [NpmPackageService],
+  exports: [NpmPackageService],
 })
 export class NpmPackageModule {}
