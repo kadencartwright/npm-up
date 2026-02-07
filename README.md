@@ -225,3 +225,25 @@ export class UpgradeAuditService {
   }
 }
 ```
+
+## CLI Upgrade Command
+
+Run the interactive upgrade command with:
+
+```bash
+npm run start:cli -- upgrade
+```
+
+Options:
+
+- `--package-json <path>`: path to a custom `package.json` file (default is `./package.json`)
+- `--min-age-days <n>`: only consider versions that are at least `n` days old
+
+Behavior:
+
+- discovers eligible candidates using `UpgradeCandidateService`
+- prompts to select which candidates to apply
+- asks for confirmation before writing
+- updates only selected dependencies in `package.json`
+- preserves range prefix style (`^`, `~`, or exact)
+- requires an interactive terminal (fails in non-TTY environments)
